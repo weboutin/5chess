@@ -2,54 +2,45 @@
 import React from 'react';
 
 export default class Chessboard extends React.Component {
+  constructor() {
+    super()
+    //方格宽度
+    this.width = 30
+    //方格数量
+    this.linenum = 16
+  }
+
+  initBlack(x, y) {
+    let ctx = this.ctx;
+    ctx.fillStyle = 'black'
+    ctx.beginPath();
+    ctx.arc(30 * x, 30 * y, 4, 0, 2 * Math.PI, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+
   componentDidMount() {
     this.c = document.getElementById("chessboard");
     this.c.addEventListener("click", (e) => this.clickBoard(e), false)
     let ctx = this.c.getContext("2d");
     this.ctx = ctx
-    for (let i = 1; i < 16; i++) {
+    for (let i = 1; i < this.linenum; i++) {
       ctx.moveTo(i * 30, 30);
       ctx.lineTo(i * 30, 450);
     }
-    for (let i = 1; i < 16; i++) {
+    for (let i = 1; i < this.linenum; i++) {
       ctx.moveTo(30, i * 30);
       ctx.lineTo(450, i * 30);
     }
-    ctx.stroke()//绘制地图上的5个点
-    ctx.fillStyle = 'black'
-    ctx.beginPath();
-    ctx.arc(30 * 4, 30 * 4, 4, 0, 2 * Math.PI, true);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    ctx.stroke()
 
-    ctx.fillStyle = 'black'
-    ctx.beginPath();
-    ctx.arc(30 * 12, 30 * 4, 4, 0, 2 * Math.PI, true);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = 'black'
-    ctx.beginPath();
-    ctx.arc(30 * 4, 30 * 12, 4, 0, 2 * Math.PI, true);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = 'black'
-    ctx.beginPath();
-    ctx.arc(30 * 12, 30 * 12, 4, 0, 2 * Math.PI, true);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = 'black'
-    ctx.beginPath();
-    ctx.arc(30 * 8, 30 * 8, 4, 0, 2 * Math.PI, true);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();;
+    //绘制地图上的5个点
+    this.initBlack(4, 4)
+    this.initBlack(12, 4)
+    this.initBlack(4, 12)
+    this.initBlack(12, 12)
+    this.initBlack(8, 8)
   }
 
   draw_chess(x_line, y_line, color) {
