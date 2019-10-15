@@ -1,5 +1,5 @@
-
 import React from 'react';
+import AiPlayer from './AiPlayer'
 
 //黑子
 const BLACK_CHESS = 0
@@ -31,14 +31,11 @@ export default class Chessboard extends React.Component {
         this.chessContainer[i][j] = -1
       }
     }
+    //AI执白
+    this.aiPlayer = new AiPlayer(WHITE_CHESS, this.chessContainer)
   }
 
   setChessContainer(x_line, y_line, currentChess) {
-    //禁止下子在同一个地方
-    if (this.chessContainer[x_line - 1][y_line - 1] != -1) {
-      return false
-    }
-    this.chessContainer[x_line - 1][y_line - 1] = currentChess
     return true
   }
 
@@ -87,6 +84,10 @@ export default class Chessboard extends React.Component {
   }
 
   clickBoard(e) {
+    //Todo 暂且用户只控制黑子
+    if (this.currentChess === WHITE_CHESS) {
+      return
+    }
     let x = e.pageX;
     let y = e.pageY;
     x -= this.c.offsetLeft;
@@ -98,15 +99,23 @@ export default class Chessboard extends React.Component {
     }
     this.x_line = x_line
     this.y_line = y_line
-    let isSetChess = this.setChessContainer(x_line, y_line, this.currentChess);
-    if (!isSetChess) {
-      return
+    this.setChess(x_line, y_line)
+    let { ai_x, ai_y } = this.aiPlayer.play()
+    this.setChess(ai_x, ai_y)
+  }
+
+  setChess(x_line, y_line) {
+    //禁止下子在同一个地方
+    if (this.chessContainer[x_line - 1][y_line - 1] !== -1) {
+      return false
     }
+    this.chessContainer[x_line - 1][y_line - 1] = this.currentChess
     this.draw_chess(x_line, y_line, this.currentChess)
     let isWin = this.isWin(x_line, y_line, this.currentChess)
     isWin && alert('win')
     this.switchChessColor()
   }
+
   switchChessColor() {
     //下一个子设置为相反颜色
     this.currentChess = (this.currentChess === BLACK_CHESS ? WHITE_CHESS : BLACK_CHESS)
@@ -157,6 +166,8 @@ export default class Chessboard extends React.Component {
         return this.addContinusChessByDirect(x - 1, y + 1, currentChess, 'x-y+') + 1
       case 'x+y-':
         return this.addContinusChessByDirect(x + 1, y - 1, currentChess, 'x+y-') + 1
+      default:
+        throw new Error('not support')
     }
   }
 
@@ -174,6 +185,8 @@ export default class Chessboard extends React.Component {
       case DEGREE135:
         return this.addContinusChessByDirect(x - 1, y + 1, currentChess, 'x-y+') +
           this.addContinusChessByDirect(x + 1, y - 1, currentChess, 'x+y-') + 1
+      default:
+        throw new Error('not support')
     }
   }
 
