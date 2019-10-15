@@ -1,9 +1,10 @@
 
 import React from 'react';
 
+//黑子
 const BLACK_CHESS = 0
+//白子
 const WHITE_CHESS = 1
-const EMPATY_CHESS = -1
 //水平
 const HORIZONTAL = 'horizontal'
 //垂直
@@ -22,8 +23,8 @@ export default class Chessboard extends React.Component {
     this.linenum = 15
     //-1表示空白，0表示黑，1表示白
     this.chessContainer = []
-    //当前棋子颜色, 0 黑， 1白
-    this.currentChessColor = 0;
+    //当前棋子, 0 黑， 1白
+    this.currentChess = 0;
     for (let i = 0; i < this.linenum; i++) {
       this.chessContainer[i] = []
       for (let j = 0; j < this.linenum; j++) {
@@ -32,12 +33,12 @@ export default class Chessboard extends React.Component {
     }
   }
 
-  setChessContainer(x_line, y_line, currentChessColor) {
+  setChessContainer(x_line, y_line, currentChess) {
     //禁止下子在同一个地方
     if (this.chessContainer[x_line - 1][y_line - 1] != -1) {
       return false
     }
-    this.chessContainer[x_line - 1][y_line - 1] = currentChessColor
+    this.chessContainer[x_line - 1][y_line - 1] = currentChess
     return true
   }
 
@@ -97,75 +98,82 @@ export default class Chessboard extends React.Component {
     }
     this.x_line = x_line
     this.y_line = y_line
-    let isSetChess = this.setChessContainer(x_line, y_line, this.currentChessColor);
+    let isSetChess = this.setChessContainer(x_line, y_line, this.currentChess);
     if (!isSetChess) {
       return
     }
-    this.draw_chess(x_line, y_line, this.currentChessColor)
-    let isWin = this.isWin(x_line, y_line, this.currentChessColor)
+    this.draw_chess(x_line, y_line, this.currentChess)
+    let isWin = this.isWin(x_line, y_line, this.currentChess)
     isWin && alert('win')
+    this.switchChessColor()
+  }
+  switchChessColor() {
     //下一个子设置为相反颜色
-    this.currentChessColor = (this.currentChessColor === BLACK_CHESS ? WHITE_CHESS : BLACK_CHESS)
+    this.currentChess = (this.currentChess === BLACK_CHESS ? WHITE_CHESS : BLACK_CHESS)
   }
 
+
   //寻找各个方位，是否有连续5个子
-  isWin(x_line, y_line, currentChessColor) {
+  isWin(x_line, y_line, currentChess) {
     //将canvas坐标转化为数组坐标
     let x = x_line - 1
     let y = y_line - 1
     let isWin = false
-    isWin = this.getContinusChess(x, y, currentChessColor, HORIZONTAL) >= 5
+    isWin = this.getContinusChess(x, y, currentChess, HORIZONTAL) >= 5
     if (isWin) return true
-    isWin = this.getContinusChess(x, y, currentChessColor, VERTICAL) >= 5
+    isWin = this.getContinusChess(x, y, currentChess, VERTICAL) >= 5
     if (isWin) return true
-    isWin = this.getContinusChess(x, y, currentChessColor, DEGREE45) >= 5
+    isWin = this.getContinusChess(x, y, currentChess, DEGREE45) >= 5
     if (isWin) return true
-    isWin = this.getContinusChess(x, y, currentChessColor, DEGREE135) >= 5
+    isWin = this.getContinusChess(x, y, currentChess, DEGREE135) >= 5
     if (isWin) return true
     return false
   }
 
-  addContinusChessByDirect(x, y, currentChessColor, direct) {
+  addContinusChessByDirect(x, y, currentChess, direct) {
+    if (x < 0 || y < 0) {
+      return 0
+    }
     if (this.chessContainer[x][y] === -1) {
       return 0
     }
-    if (this.chessContainer[x][y] !== currentChessColor) {
+    if (this.chessContainer[x][y] !== currentChess) {
       return 0
     }
     switch (direct) {
       case 'x+':
-        return this.addContinusChessByDirect(x + 1, y, currentChessColor, 'x+') + 1
+        return this.addContinusChessByDirect(x + 1, y, currentChess, 'x+') + 1
       case 'x-':
-        return this.addContinusChessByDirect(x - 1, y, currentChessColor, 'x-') + 1
+        return this.addContinusChessByDirect(x - 1, y, currentChess, 'x-') + 1
       case 'y+':
-        return this.addContinusChessByDirect(x, y + 1, currentChessColor, 'y+') + 1
+        return this.addContinusChessByDirect(x, y + 1, currentChess, 'y+') + 1
       case 'y-':
-        return this.addContinusChessByDirect(x, y - 1, currentChessColor, 'y-') + 1
+        return this.addContinusChessByDirect(x, y - 1, currentChess, 'y-') + 1
       case 'x+y+':
-        return this.addContinusChessByDirect(x + 1, y + 1, currentChessColor, 'x+y+') + 1
+        return this.addContinusChessByDirect(x + 1, y + 1, currentChess, 'x+y+') + 1
       case 'x-y-':
-        return this.addContinusChessByDirect(x - 1, y - 1, currentChessColor, 'x-y-') + 1
+        return this.addContinusChessByDirect(x - 1, y - 1, currentChess, 'x-y-') + 1
       case 'x-y+':
-        return this.addContinusChessByDirect(x - 1, y + 1, currentChessColor, 'x-y+') + 1
+        return this.addContinusChessByDirect(x - 1, y + 1, currentChess, 'x-y+') + 1
       case 'x+y-':
-        return this.addContinusChessByDirect(x + 1, y - 1, currentChessColor, 'x+y-') + 1
+        return this.addContinusChessByDirect(x + 1, y - 1, currentChess, 'x+y-') + 1
     }
   }
 
-  getContinusChess(x, y, currentChessColor, direct) {
+  getContinusChess(x, y, currentChess, direct) {
     switch (direct) {
       case HORIZONTAL:
-        return this.addContinusChessByDirect(x + 1, y, currentChessColor, 'x+') +
-          this.addContinusChessByDirect(x - 1, y, currentChessColor, 'x-') + 1
+        return this.addContinusChessByDirect(x + 1, y, currentChess, 'x+') +
+          this.addContinusChessByDirect(x - 1, y, currentChess, 'x-') + 1
       case VERTICAL:
-        return this.addContinusChessByDirect(x, y + 1, currentChessColor, 'y+') +
-          this.addContinusChessByDirect(x, y - 1, currentChessColor, 'y-') + 1
+        return this.addContinusChessByDirect(x, y + 1, currentChess, 'y+') +
+          this.addContinusChessByDirect(x, y - 1, currentChess, 'y-') + 1
       case DEGREE45:
-        return this.addContinusChessByDirect(x + 1, y + 1, currentChessColor, 'x+y+') +
-          this.addContinusChessByDirect(x - 1, y - 1, currentChessColor, 'x-y-') + 1
+        return this.addContinusChessByDirect(x + 1, y + 1, currentChess, 'x+y+') +
+          this.addContinusChessByDirect(x - 1, y - 1, currentChess, 'x-y-') + 1
       case DEGREE135:
-        return this.addContinusChessByDirect(x - 1, y + 1, currentChessColor, 'x-y+') +
-          this.addContinusChessByDirect(x + 1, y - 1, currentChessColor, 'x+y-') + 1
+        return this.addContinusChessByDirect(x - 1, y + 1, currentChess, 'x-y+') +
+          this.addContinusChessByDirect(x + 1, y - 1, currentChess, 'x+y-') + 1
     }
   }
 
